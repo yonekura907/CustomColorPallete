@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<style>
+  :root {
+    --bg: var(--figma-color-bg, #ffffff);
+    --bg-secondary: var(--figma-color-bg-secondary, #f3f4f5);
+    --bg-hover: var(--figma-color-bg-hover, #e9eaeb);
+    --text: var(--figma-color-text, #1f2121);
+    --text-secondary: var(--figma-color-text-secondary, #5c6366);
+    --border: var(--figma-color-border, #dedfe0);
+    --accent: #0077d9;
+    --danger: #d92b57;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Inter", "Helvetica Neue",
+      "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    font-size: 11px;
+    color: var(--text);
+    background: var(--bg);
+  }
+
+  .container { padding: 8px 10px 10px; }
+
+  .palette-select {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+    align-items: center;
+  }
+
+  select {
+    flex: 1;
+    font-size: 11px;
+    padding: 4px 6px;
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    outline: none;
+  }
+
+  .icon-btn {
+    width: 24px; height: 24px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1;
+  }
+  .icon-btn:hover { background: var(--bg-hover); }
+  .icon-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .palette-name {
+    font-weight: 600;
+    font-size: 11px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--text);
+  }
+  .palette-name .builtin-tag {
+    font-size: 9px;
+    color: var(--text-secondary);
+    font-weight: 400;
+    background: var(--bg-secondary);
+    padding: 2px 6px;
+    border-radius: 8px;
+  }
+
+  .color-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .swatch {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.08);
+    cursor: pointer;
+    transition: transform 0.08s ease;
+  }
+  .swatch:hover { transform: scale(1.08); }
+  .swatch:active { transform: scale(0.95); }
+  .swatch .remove {
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 14px; height: 14px;
+    background: var(--danger);
+    color: #fff;
+    border-radius: 50%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    line-height: 1;
+    cursor: pointer;
+    border: 1px solid #fff;
+  }
+  .swatch.editable:hover .remove { display: flex; }
+
+  .add-color {
+    border: 1px dashed var(--border);
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 6px;
+    aspect-ratio: 1 / 1;
+  }
+  .add-color:hover { background: var(--bg-hover); }
+
+  .section-title {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin: 8px 0 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .target-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .target-btn {
+    flex: 1;
+    padding: 5px 0;
+    font-size: 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-secondary);
+    cursor: pointer;
+  }
+  .target-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 6px;
+  }
+  input[type="text"] {
+    flex: 1;
+    font-size: 11px;
+    padding: 5px 6px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    color: var(--text);
+    outline: none;
+  }
+  input[type="text"]:focus { border-color: var(--accent); }
+
+  .btn {
+    font-size: 11px;
+    padding: 5px 10px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .btn:hover { opacity: 0.9; }
+  .btn.secondary {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .footer {
+    font-size: 10px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    line-height: 1.4;
+  }
+
+  .modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 10;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-backdrop.show { display: flex; }
+  .modal {
+    background: var(--bg);
+    border-radius: 6px;
+    padding: 12px;
+    width: 220px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  }
+  .modal h3 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    color: var(--text);
+  }
+  .modal .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="palette-select">
+      <select id="palette-select"></select>
+      <button class="icon-btn" id="btn-new-palette" title="新しいパレットを追加">+</button>
+      <button class="icon-btn" id="btn-delete-palette" title="このパレットを削除">×</button>
+    </div>
+
+    <div class="palette-name" id="palette-name-row">
+      <span id="palette-label"></span>
+      <span class="builtin-tag" id="builtin-tag" style="display:none;">Built-in</span>
+    </div>
+
+    <div class="color-grid" id="color-grid"></div>
+
+    <div class="section-title">適用対象</div>
+    <div class="target-row">
+      <button class="target-btn active" data-target="auto">自動</button>
+      <button class="target-btn" data-target="fill">塗り</button>
+      <button class="target-btn" data-target="stroke">線</button>
+    </div>
+
+    <div class="footer">
+      Sticky / Shape / Text は塗り、Connector は線に適用されます。<br />
+      オブジェクトを選択してから色をクリックしてください。
+    </div>
+  </div>
+
+  <!-- 色追加モーダル -->
+  <div class="modal-backdrop" id="modal-color">
+    <div class="modal">
+      <h3>色を追加</h3>
+      <div class="form-row">
+        <input type="color" id="color-picker" style="width:32px; height:32px; padding:0; border:1px solid var(--border); border-radius:4px;" />
+        <input type="text" id="color-hex" placeholder="#RRGGBB" maxlength="7" />
+      </div>
+      <div class="form-row">
+        <input type="text" id="color-name" placeholder="名前 (任意)" />
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="color-cancel">キャンセル</button>
+        <button class="btn" id="color-add">追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- パレット追加モーダル -->
+  <div class="modal-backdrop" id="modal-palette">
+    <div class="modal">
+      <h3>新しいパレット</h3>
+      <div class="form-row">
+        <input type="text" id="palette-name-input" placeholder="パレット名" />
+      </div>
+      <div class="actions">
+        <button class="btn secondary" id="palette-cancel">キャンセル</button>
+        <button class="btn" id="palette-create">作成</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /** @type {Array<{id:string, name:string, colors:Array<{name:string, hex:string}>, builtIn?:boolean}>} */
+  let palettes = [];
+  let currentPaletteId = null;
+  let currentTarget = "auto";
+
+  const $ = (id) => document.getElementById(id);
+  const paletteSelect = $("palette-select");
+  const paletteLabel = $("palette-label");
+  const builtinTag = $("builtin-tag");
+  const colorGrid = $("color-grid");
+  const btnDeletePalette = $("btn-delete-palette");
+
+  function currentPalette() {
+    return palettes.find((p) => p.id === currentPaletteId) || palettes[0];
+  }
+
+  function renderPaletteSelect() {
+    paletteSelect.innerHTML = "";
+    for (const p of palettes) {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.name + (p.builtIn ? " ★" : "");
+      paletteSelect.appendChild(opt);
+    }
+    paletteSelect.value = currentPaletteId;
+  }
+
+  function renderPalette() {
+    const p = currentPalette();
+    if (!p) return;
+    paletteLabel.textContent = p.name;
+    builtinTag.style.display = p.builtIn ? "inline-block" : "none";
+    btnDeletePalette.disabled = !!p.builtIn;
+
+    colorGrid.innerHTML = "";
+    for (let i = 0; i < p.colors.length; i++) {
+      const c = p.colors[i];
+      const sw = document.createElement("div");
+      sw.className = "swatch" + (p.builtIn ? "" : " editable");
+      sw.style.background = c.hex;
+      sw.title = (c.name ? c.name + " " : "") + c.hex;
+      sw.addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove")) return;
+        parent.postMessage({
+          pluginMessage: { type: "apply-color", hex: c.hex, target: currentTarget },
+        }, "*");
+      });
+      if (!p.builtIn) {
+        const remove = document.createElement("span");
+        remove.className = "remove";
+        remove.textContent = "×";
+        remove.title = "この色を削除";
+        remove.addEventListener("click", (e) => {
+          e.stopPropagation();
+          p.colors.splice(i, 1);
+          savePalettes();
+          renderPalette();
+        });
+        sw.appendChild(remove);
+      }
+      colorGrid.appendChild(sw);
+    }
+
+    // + ボタン (カスタムパレットのみ)
+    if (!p.builtIn) {
+      const add = document.createElement("div");
+      add.className = "add-color";
+      add.textContent = "+";
+      add.title = "色を追加";
+      add.addEventListener("click", () => openColorModal());
+      colorGrid.appendChild(add);
+    }
+  }
+
+  function savePalettes() {
+    parent.postMessage({
+      pluginMessage: { type: "save-palettes", palettes },
+    }, "*");
+  }
+
+  // ---- 適用対象 ----
+  document.querySelectorAll(".target-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".target-btn").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentTarget = btn.dataset.target;
+    });
+  });
+
+  // ---- パレット切替 ----
+  paletteSelect.addEventListener("change", () => {
+    currentPaletteId = paletteSelect.value;
+    renderPalette();
+  });
+
+  // ---- パレット追加 ----
+  $("btn-new-palette").addEventListener("click", () => {
+    $("palette-name-input").value = "";
+    $("modal-palette").classList.add("show");
+    setTimeout(() => $("palette-name-input").focus(), 50);
+  });
+  $("palette-cancel").addEventListener("click", () => {
+    $("modal-palette").classList.remove("show");
+  });
+  $("palette-create").addEventListener("click", () => {
+    const name = $("palette-name-input").value.trim() || "新しいパレット";
+    const id = "user-" + Date.now();
+    palettes.push({ id, name, colors: [] });
+    currentPaletteId = id;
+    savePalettes();
+    $("modal-palette").classList.remove("show");
+    renderPaletteSelect();
+    renderPalette();
+  });
+
+  // ---- パレット削除 ----
+  btnDeletePalette.addEventListener("click", () => {
+    const p = currentPalette();
+    if (!p || p.builtIn) return;
+    if (!confirm(`「${p.name}」を削除しますか?`)) return;
+    palettes = palettes.filter((x) => x.id !== p.id);
+    currentPaletteId = palettes[0] ? palettes[0].id : null;
+    savePalettes();
+    renderPaletteSelect();
+    renderPalette();
+  });
+
+  // ---- 色追加モーダル ----
+  function openColorModal() {
+    $("color-hex").value = "#0077d9";
+    $("color-picker").value = "#0077d9";
+    $("color-name").value = "";
+    $("modal-color").classList.add("show");
+    setTimeout(() => $("color-hex").focus(), 50);
+  }
+  $("color-cancel").addEventListener("click", () => {
+    $("modal-color").classList.remove("show");
+  });
+  $("color-picker").addEventListener("input", (e) => {
+    $("color-hex").value = e.target.value;
+  });
+  $("color-hex").addEventListener("input", (e) => {
+    const v = e.target.value;
+    if (/^#[0-9a-fA-F]{6}$/.test(v)) $("color-picker").value = v;
+  });
+  $("color-add").addEventListener("click", () => {
+    let hex = $("color-hex").value.trim();
+    if (!hex.startsWith("#")) hex = "#" + hex;
+    if (!/^#[0-9a-fA-F]{6}$/.test(hex)) {
+      alert("有効な HEX コードを入力してください (例: #0077d9)");
+      return;
+    }
+    const name = $("color-name").value.trim();
+    const p = currentPalette();
+    if (!p || p.builtIn) return;
+    p.colors.push({ name, hex: hex.toLowerCase() });
+    savePalettes();
+    $("modal-color").classList.remove("show");
+    renderPalette();
+  });
+
+  // ---- プラグインからのメッセージ ----
+  window.addEventListener("message", (e) => {
+    const msg = e.data.pluginMessage;
+    if (!msg) return;
+    if (msg.type === "init") {
+      palettes = msg.palettes || [];
+      currentPaletteId = palettes[0] ? palettes[0].id : null;
+      renderPaletteSelect();
+      renderPalette();
+    }
+  });
+</script>
+</body>
+</html>
