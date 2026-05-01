@@ -1,0 +1,2 @@
+# CustomColorPallete
+Figjamでカスタムカラーを作成するプラグイン
