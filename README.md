@@ -37,15 +37,17 @@ GitHub のリポジトリページ右上 **Code → Download ZIP** から ZIP �
 
 ### 2. Figma でプラグインをインポートする
 
-1. Figma デスクトップアプリを起動
-2. メニューから **Plugins → Development → Import plugin from manifest...**
-   - もしくは右クリック → **Plugins → Development → Import plugin from manifest...**
+1. Figma デスクトップアプリを起動して、任意の Figma / FigJam ファイルを開く
+2. 左上の Figma アイコンをクリック → **プラグイン → 開発 → マニフェストからプラグインをインポート...** を選択
+   - もしくはキャンバス上で右クリック → **プラグイン → 開発 → マニフェストからプラグインをインポート...**
 3. ダウンロードしたフォルダの中の **`manifest.json`** を選択
+
+![インストール手順：プラグイン → 開発 → マニフェストからプラグインをインポート](docs/install-menu.png)
 
 ### 3. プラグインを使う
 
 - 任意の Figma / FigJam ファイルを開く
-- メニューから **Plugins → Development → Custom Color Pallet** を選択
+- 左上の Figma アイコン → **プラグイン → 開発 → Custom Color Pallet** を選択
 - パレットから色を選び、選択中のオブジェクトに適用
 
 ## 使い方
